@@ -1,12 +1,12 @@
 import ujson
 
-import falcon
+from falcon import Request, Response, status_codes
 
 
 class ImagesResource:
 
     @staticmethod
-    def on_get(req, resp):
+    def on_get(request: Request, response: Response) -> None:
         doc = {
             'images': [
                 {
@@ -15,5 +15,5 @@ class ImagesResource:
             ]
         }
 
-        resp.body = ujson.dumps(doc, ensure_ascii=False)
-        resp.status = falcon.HTTP_200
+        response.body = ujson.dumps(doc, ensure_ascii=False)
+        response.status = status_codes.HTTP_200
