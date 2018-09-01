@@ -29,6 +29,16 @@ class PaymentSource(enum.Enum):
     CRYPTO = 'CRYPTO'
 
 
+class CartStatus(enum.Enum):
+    PENDING_PAYMENT = "PENDING_PAYMENT"
+    FAILED = "FAILED"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    ON_HOLD = "ON_HOLD"
+    CANCELLED = "CANCELLED"
+    REFUND = "REFUND"
+
+
 @dataclass()
 class Bill(_Base):
     __tablename__ = 'bill'
@@ -41,8 +51,21 @@ class Bill(_Base):
     payments = relationship('Payment', back_populates='bill')
 
 
-class Cart:
-    pass
+@dataclass()
+class Cart(_Base):
+    __tablename__ = 'cart'
+
+    id: int = Column(Integer, primary_key=True)
+    creation_time: datetime = Column(DateTime, nullable=False)
+    status: CartStatus = Column(Enum(CartStatus), nullable=False)
+    price: Decimal = Column(Numeric(10, 2), nullable=False)
+    description: str = Column(Text, nullable=False)
+    shipping_address: str = Column(Text, nullable=False)
+    bill_id: int = Column(Integer, ForeignKey('bill.id'), nullable=False)
+    bill = relationship('Bill')
+    customer_id: int = Column(Integer, ForeignKey('customer.id'), nullable=False)
+    customer = relationship('Customer')
+    purchases = relationship('Purchase', back_populates='cart')
 
 
 @dataclass()
@@ -74,7 +97,7 @@ class Department(_Base):
     id: int = Column(Integer, primary_key=True)
     name: str = Column(String(60), nullable=False)
     category_id: int = Column(Integer, ForeignKey('category.id'), nullable=False)
-    category = relationship("Category")
+    category = relationship('Category')
 
 
 @dataclass()
@@ -98,7 +121,7 @@ class Payment(_Base):
     amount: Decimal = Column(Numeric(10, 2), nullable=False)
     source: Language = Column(Enum(PaymentSource), nullable=False)
     bill_id: int = Column(Integer, ForeignKey('bill.id'), nullable=False)
-    bill: Bill = relationship("Bill", back_populates='payments')
+    bill: Bill = relationship('Bill', back_populates='payments')
 
 
 @dataclass()
@@ -110,8 +133,16 @@ class Product(_Base):
     creation_time: datetime = Column(DateTime, nullable=False)
     price: Decimal = Column(Numeric(10, 2), nullable=False)
     category_id: int = Column(Integer, ForeignKey('category.id'), nullable=False)
-    category = relationship("Category")
+    category = relationship('Category')
 
 
-class Purchase:
-    pass
+@dataclass()
+class Purchase(_Base):
+    __tablename__ = 'purchase'
+
+    creation_time: datetime = Column(DateTime, nullable=False)
+    quantity: int = Column(Integer, nullable=False)
+    cart_id: int = Column(Integer, ForeignKey('cart.id'), primary_key=True)
+    cart = relationship('Cart', back_populates='purchases')
+    product_id: int = Column(Integer, ForeignKey('product.id'), primary_key=True)
+    product = relationship('Product')
