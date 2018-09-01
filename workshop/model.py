@@ -68,8 +68,16 @@ class Department(_Base):
     category: Category = relationship("Category")
 
 
-class Employee:
-    pass
+@dataclass()
+class Employee(_Base):
+    __tablename__ = 'employee'
+
+    id: int = Column(Integer, primary_key=True)
+    first_name: str = Column(String(60), nullable=False)
+    last_name: str = Column(String(60), nullable=False)
+    middle_name: str = Column(String(60))
+    department_id: int = Column(Integer, ForeignKey('department.id'), nullable=False)
+    department: Department = relationship(Department)
 
 
 class Payment:
