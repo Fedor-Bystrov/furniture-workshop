@@ -3,7 +3,7 @@ import os
 import falcon
 
 from workshop.repository import init_repository
-from workshop.resources.images import ImagesResource
+from workshop.resources import images, products
 
 _repository = init_repository(
     os.getenv('DB_USR'),
@@ -13,4 +13,5 @@ _repository = init_repository(
     os.getenv('DB_NAME'))
 
 api = application = falcon.API()
-api.add_route('/images', ImagesResource())
+api.add_route('/images', images.ImagesResource())
+api.add_route('/product', products.ProductResource(_repository))
