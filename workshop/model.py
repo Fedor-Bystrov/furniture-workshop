@@ -64,8 +64,8 @@ class Department(_Base):
 
     id: int = Column(Integer, primary_key=True)
     name: str = Column(String(60), nullable=False)
-    category_id = Column(Integer, ForeignKey('category.id'), nullable=False)
-    category: Category = relationship("Category")
+    category_id: int = Column(Integer, ForeignKey('category.id'), nullable=False)
+    category = relationship("Category")
 
 
 @dataclass()
@@ -77,15 +77,23 @@ class Employee(_Base):
     last_name: str = Column(String(60), nullable=False)
     middle_name: str = Column(String(60))
     department_id: int = Column(Integer, ForeignKey('department.id'), nullable=False)
-    department: Department = relationship(Department)
+    department = relationship(Department)
 
 
 class Payment:
     pass
 
 
-class Product:
-    pass
+@dataclass()
+class Product(_Base):
+    __tablename__ = 'product'
+
+    id: int = Column(Integer, primary_key=True)
+    name: str = Column(String(200), nullable=False)
+    creation_time: datetime = Column(DateTime, nullable=False)
+    price: Decimal = Column(Numeric(10, 2), nullable=False)
+    category_id: int = Column(Integer, ForeignKey('category.id'), nullable=False)
+    category = relationship("Category")
 
 
 class Purchase:
