@@ -21,6 +21,14 @@ class BillType(enum.Enum):
     MIXED = 'MIXED'
 
 
+class PaymentSource(enum.Enum):
+    BACK_OFFICE = 'BACK_OFFICE'
+    BANK = 'BANK'
+    CASH = 'CASH'
+    PAY_PAL = 'PAY_PAL'
+    CRYPTO = 'CRYPTO'
+
+
 @dataclass()
 class Bill(_Base):
     __tablename__ = 'bill'
@@ -30,6 +38,7 @@ class Bill(_Base):
     formulation: str = Column(Text, nullable=False)
     price: Decimal = Column(Numeric(10, 2), nullable=False)
     type: BillType = Column(Enum(BillType), nullable=False)
+    payments = relationship('Payment', back_populates='bill')
 
 
 class Cart:
@@ -80,8 +89,16 @@ class Employee(_Base):
     department = relationship(Department)
 
 
-class Payment:
-    pass
+@dataclass()
+class Payment(_Base):
+    __tablename__ = 'payment'
+
+    id: int = Column(Integer, primary_key=True)
+    creation_time: datetime = Column(DateTime, nullable=False)
+    amount: Decimal = Column(Numeric(10, 2), nullable=False)
+    source: Language = Column(Enum(PaymentSource), nullable=False)
+    bill_id: int = Column(Integer, ForeignKey('bill.id'), nullable=False)
+    bill: Bill = relationship("Bill", back_populates='payments')
 
 
 @dataclass()
