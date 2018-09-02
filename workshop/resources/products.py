@@ -13,7 +13,7 @@ class ProductListResource:
         self._repository = repository
         self._type = Product
 
-    def on_get(self):
+    def on_get(self, request: Request, response: Response) -> None:
         products = self._repository.get_all(self._type)
         product_list = list()
         for product in products:
@@ -25,7 +25,8 @@ class ProductListResource:
                 'price': str(product.price),
             })
 
-        return ujson.dumps(product_list)
+        response.body = ujson.dumps(product_list)
+        response.status = status_codes.HTTP_200
 
 
 class ProductResource:
