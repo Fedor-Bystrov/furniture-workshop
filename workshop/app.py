@@ -17,5 +17,5 @@ _product_resource = products.ProductResource(_repository)
 
 api = application = falcon.API()
 
-api.add_route('/product/list', _product_list_resource)
-api.add_route('/product/{product_id:int}', _product_resource)
+api.add_route('/api/product/list', _product_list_resource)
+api.add_route('/api/product/{product_id:int}', _product_resource)
