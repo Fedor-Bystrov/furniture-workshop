@@ -21,10 +21,10 @@ class Cart(_Base):
 
     cart_id: int = Column(Integer, primary_key=True)
     creation_time: datetime = Column(DateTime, nullable=False)
-    customer_id: int = Column(Integer, ForeignKey('customer.id'), nullable=False)
+    customer_id: int = Column(Integer, ForeignKey('customer.customer_id'), nullable=False)
     customer = relationship('Customer')
     price: Decimal = Column(Numeric(10, 2), nullable=False)
-    purchases = relationship('Purchase', back_populates='cart')
+    purchases = relationship('Purchase')
     description: str = Column(Text, nullable=False)
     shipping_address: str = Column(Text, nullable=False)
 
@@ -58,7 +58,7 @@ class Product(_Base):
     product_id: int = Column(Integer, primary_key=True)
     name: str = Column(String(200), nullable=False)
     creation_time: datetime = Column(DateTime, nullable=False)
-    category_id: int = Column(Integer, ForeignKey('category.id'), nullable=False)
+    category_id: int = Column(Integer, ForeignKey('category.category_id'), nullable=False)
     category = relationship('Category')
     price: Decimal = Column(Numeric(10, 2), nullable=False)
     short_description: str = Column(String(240), nullable=False)
@@ -70,7 +70,7 @@ class Purchase(_Base):
     __tablename__ = 'purchase'
 
     creation_time: datetime = Column(DateTime, nullable=False)
-    cart_id: int = Column(Integer, ForeignKey('cart.id'), primary_key=True)
-    product_id: int = Column(Integer, ForeignKey('product.id'), primary_key=True)
+    cart_id: int = Column(Integer, ForeignKey('cart.cart_id'), primary_key=True)
+    product_id: int = Column(Integer, ForeignKey('product.product_id'), primary_key=True)
     product = relationship('Product')
     quantity: int = Column(Integer, nullable=False)
