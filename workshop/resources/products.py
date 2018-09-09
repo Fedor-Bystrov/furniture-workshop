@@ -5,6 +5,8 @@ from falcon import Request, Response, status_codes, HTTPBadRequest
 from workshop.model import Product
 from workshop.repository import Repository
 
+_CHUNK_SIZE_BYTES = 4096
+
 
 class ProductListResource:
 
@@ -17,11 +19,12 @@ class ProductListResource:
         product_list = list()
         for product in products:
             product_list.append({
-                'id': product.id,
+                'productId': product.product_id,
                 'name': product.name,
                 'creationTime': product.creation_time.isoformat(),
                 'categoryId': product.category_id,
                 'price': str(product.price),
+                'description': product.short_description
             })
 
         response.body = ujson.dumps(product_list)
@@ -29,7 +32,6 @@ class ProductListResource:
 
 
 class ProductResource:
-    _CHUNK_SIZE_BYTES = 4096
 
     def __init__(self, repository: Repository) -> None:
         self._repository = repository
@@ -43,11 +45,15 @@ class ProductResource:
                 raise RuntimeError('Product with id = {} not found!'.format(product_id))
 
             response.body = ujson.dumps({
-                'id': product.id,
+                'id': product.product_id,
                 'name': product.name,
                 'creationTime': product.creation_time.isoformat(),
-                'categoryId': product.category_id,
+                'category': {
+                    'categoryId': product.category_id,
+                    'name': product.category.name,
+                },
                 'price': str(product.price),
+                'description': product.description,
             })
             response.status = status_codes.HTTP_OK
 
