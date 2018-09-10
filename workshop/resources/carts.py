@@ -29,7 +29,7 @@ class CartListResource:
         response.status = status_codes.HTTP_OK
 
 
-class CartResource:
+class GetUpdateCartResource:
 
     def __init__(self, repository: Repository) -> None:
         self._repository = repository
@@ -64,3 +64,13 @@ class CartResource:
 
         except RuntimeError:
             raise HTTPBadRequest()
+
+
+class CreateCartResource:
+    def __init__(self, repository: Repository) -> None:
+        self._repository = repository
+        self._type = Cart
+
+    def on_post(self, request: Request, response: Response) -> None:
+        pass
+    # TODO
