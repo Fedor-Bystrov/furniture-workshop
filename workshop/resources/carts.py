@@ -3,9 +3,9 @@ import ujson
 from falcon import Request, Response, status_codes, HTTPBadRequest, HTTPInternalServerError
 from sqlalchemy.exc import IntegrityError
 
-from workshop.services import cart_service
 from workshop.model import Cart
 from workshop.repository import Repository
+from workshop.services import cart_service
 
 _CHUNK_SIZE_BYTES = 4096
 
@@ -88,7 +88,9 @@ class GetUpdateCartResource:
             self._repository.save_or_update(cart_to_update)
             response.status = status_codes.HTTP_OK
 
-        except (RuntimeError, ValueError, IntegrityError):
+        except RuntimeError as err:
+            raise HTTPBadRequest(str(err))
+        except (ValueError, IntegrityError):
             raise HTTPBadRequest()
         except:
             raise HTTPInternalServerError()
@@ -109,10 +111,28 @@ class CreateCartResource:
                 if not chunk:
                     break
 
-            cart = ujson.loads(request_body)
-            self._repository.save_or_update(None)  # TODO
+            cart_data = ujson.loads(request_body)
+            self.validate(cart_data)
 
-        except (RuntimeError, ValueError, IntegrityError):
+            cart = cart_service.create_cart(cart_data)
+            self._repository.save_or_update(cart)
+            response.body = ujson.dumps({'cartId': cart.cart_id})
+            response.status = status_codes.HTTP_CREATED
+
+            # TODO добавить логирование ошибок
+        except RuntimeError as err:
+            raise HTTPBadRequest(str(err))
+        except (ValueError, IntegrityError):
             raise HTTPBadRequest()
         except:
             raise HTTPInternalServerError()
+
+    @staticmethod
+    def validate(request_body: dict):
+        required_fields = ['firstName', 'lastName', 'middleName', 'email', 'phone', 'shippingAddress', 'purchases',
+                           'price', 'description']
+
+        keys = request_body.keys()
+        for field in required_fields:
+            if field not in keys:
+                raise RuntimeError('field "{}" is required'.format(field))

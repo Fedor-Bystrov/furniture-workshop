@@ -1,7 +1,37 @@
 from datetime import datetime
 from decimal import Decimal
 
-from workshop.model import Cart, Purchase
+from workshop.model import Cart, Customer, CustomerLocale, Purchase
+
+
+def create_cart(request_body: dict) -> Cart:
+    first_name = request_body.get('firstName')
+    last_name = request_body.get('lastName')
+    middle_name = request_body.get('middleName')
+    email = request_body.get('email')
+    phone = request_body.get('phone')
+    shipping_address = request_body.get('shippingAddress')
+    purchases_data = request_body.get('purchases')
+    price = request_body.get('price')
+    description = request_body.get('description')
+
+    customer = Customer(first_name=first_name,
+                        last_name=last_name,
+                        middle_name=middle_name,
+                        locale=CustomerLocale.RU,
+                        email=email,
+                        phone=phone)
+
+    purchases = [Purchase(product_id=data.get('productId'), quantity=data.get('quantity'))
+                 for data in purchases_data]
+
+    cart = Cart(customer=customer,
+                purchases=purchases,
+                price=price,
+                shipping_address=shipping_address,
+                description=description)
+
+    return cart
 
 
 def update_cart(cart: Cart, request_body: dict) -> None:
