@@ -45,7 +45,7 @@ class ProductResource:
                 raise RuntimeError('Product with id = {} not found!'.format(product_id))
 
             response.body = ujson.dumps({
-                'id': product.product_id,
+                'productId': product.product_id,
                 'name': product.name,
                 'creationTime': product.creation_time.isoformat(),
                 'category': {
