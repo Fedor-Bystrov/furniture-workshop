@@ -1,5 +1,4 @@
 import enum
-from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 
@@ -15,12 +14,11 @@ class CustomerLocale(enum.Enum):
     ENG = 'ENG'
 
 
-@dataclass()
 class Cart(_Base):
     __tablename__ = 'cart'
 
     cart_id: int = Column(Integer, primary_key=True)
-    creation_time: datetime = Column(DateTime, nullable=False)
+    creation_time: datetime = Column(DateTime, nullable=False, default=datetime.now())
     customer_id: int = Column(Integer, ForeignKey('customer.customer_id'), nullable=False)
     customer = relationship('Customer')
     price: Decimal = Column(Numeric(10, 2), nullable=False)
@@ -29,7 +27,6 @@ class Cart(_Base):
     shipping_address: str = Column(Text, nullable=False)
 
 
-@dataclass()
 class Category(_Base):
     __tablename__ = 'category'
 
@@ -37,12 +34,11 @@ class Category(_Base):
     name: str = Column(String(60), nullable=False)
 
 
-@dataclass()
 class Customer(_Base):
     __tablename__ = 'customer'
 
     customer_id: int = Column(Integer, primary_key=True)
-    creation_time: datetime = Column(DateTime, nullable=False)
+    creation_time: datetime = Column(DateTime, nullable=False, default=datetime.now())
     first_name: str = Column(String(60), nullable=False)
     last_name: str = Column(String(60), nullable=False)
     middle_name: str = Column(String(60))
@@ -51,13 +47,12 @@ class Customer(_Base):
     phone: str = Column(String(60), nullable=False)
 
 
-@dataclass()
 class Product(_Base):
     __tablename__ = 'product'
 
     product_id: int = Column(Integer, primary_key=True)
     name: str = Column(String(200), nullable=False)
-    creation_time: datetime = Column(DateTime, nullable=False)
+    creation_time: datetime = Column(DateTime, nullable=False, default=datetime.now())
     category_id: int = Column(Integer, ForeignKey('category.category_id'), nullable=False)
     category = relationship('Category')
     price: Decimal = Column(Numeric(10, 2), nullable=False)
@@ -65,11 +60,10 @@ class Product(_Base):
     description: str = Column(Text, nullable=False)
 
 
-@dataclass()
 class Purchase(_Base):
     __tablename__ = 'purchase'
 
-    creation_time: datetime = Column(DateTime, nullable=False)
+    creation_time: datetime = Column(DateTime, nullable=False, default=datetime.now())
     cart_id: int = Column(Integer, ForeignKey('cart.cart_id'), primary_key=True)
     product_id: int = Column(Integer, ForeignKey('product.product_id'), primary_key=True)
     product = relationship('Product')
