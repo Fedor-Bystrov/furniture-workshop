@@ -2,7 +2,8 @@ import ujson
 from datetime import datetime
 from decimal import Decimal
 
-from falcon import Request, Response, status_codes, HTTPBadRequest
+from falcon import Request, Response, status_codes, HTTPBadRequest, HTTPInternalServerError
+from sqlalchemy.exc import IntegrityError
 
 from workshop.model import Cart, Purchase
 from workshop.repository import Repository
@@ -85,13 +86,13 @@ class GetUpdateCartResource:
                     break
 
             self.update_cart(cart_to_update, ujson.loads(request_body))
-            print('save_or_update')
             self._repository.save_or_update(cart_to_update)
             response.status = status_codes.HTTP_OK
-            print('return!')
 
-        except (RuntimeError, ValueError):
+        except (RuntimeError, ValueError, IntegrityError):
             raise HTTPBadRequest()
+        except:
+            raise HTTPInternalServerError()
 
     def update_cart(self, cart_to_update: Cart, request_body):
         first_name = request_body.get('firstName')
@@ -125,6 +126,9 @@ class GetUpdateCartResource:
                 quantity = purchase.get('quantity')
                 if product_id and quantity:
                     self.update_purchase(cart_to_update, product_id, quantity)
+                else:
+                    # TODO причесать эксепшн
+                    raise RuntimeError("product or price is absent")
 
         price = request_body.get('price')
         if price:
