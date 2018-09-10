@@ -1,11 +1,10 @@
 import ujson
-from datetime import datetime
-from decimal import Decimal
 
 from falcon import Request, Response, status_codes, HTTPBadRequest, HTTPInternalServerError
 from sqlalchemy.exc import IntegrityError
 
-from workshop.model import Cart, Purchase
+from workshop.services import cart_service
+from workshop.model import Cart
 from workshop.repository import Repository
 
 _CHUNK_SIZE_BYTES = 4096
@@ -85,7 +84,7 @@ class GetUpdateCartResource:
                 if not chunk:
                     break
 
-            self.update_cart(cart_to_update, ujson.loads(request_body))
+            cart_service.update_cart(cart_to_update, ujson.loads(request_body))
             self._repository.save_or_update(cart_to_update)
             response.status = status_codes.HTTP_OK
 
@@ -94,62 +93,6 @@ class GetUpdateCartResource:
         except:
             raise HTTPInternalServerError()
 
-    def update_cart(self, cart_to_update: Cart, request_body):
-        first_name = request_body.get('firstName')
-        if first_name:
-            cart_to_update.customer.first_name = first_name
-
-        last_name = request_body.get('lastName')
-        if last_name:
-            cart_to_update.customer.last_name = last_name
-
-        middle_name = request_body.get('middleName')
-        if middle_name:
-            cart_to_update.customer.middle_name = middle_name
-
-        email = request_body.get('email')
-        if email:
-            cart_to_update.customer.email = email
-
-        phone = request_body.get('phone')
-        if phone:
-            cart_to_update.customer.phone = phone
-
-        shipping_address = request_body.get('shippingAddress')
-        if shipping_address:
-            cart_to_update.shipping_address = shipping_address
-
-        purchases = request_body.get('purchases')
-        if purchases:
-            for purchase in purchases:
-                product_id = purchase.get('productId')
-                quantity = purchase.get('quantity')
-                if product_id and quantity:
-                    self.update_purchase(cart_to_update, product_id, quantity)
-                else:
-                    # TODO причесать эксепшн
-                    raise RuntimeError("product or price is absent")
-
-        price = request_body.get('price')
-        if price:
-            cart_to_update.price = Decimal(price)
-
-        description = request_body.get('description')
-        if description:
-            cart_to_update.description = description
-
-    @staticmethod
-    def update_purchase(cart_to_update, product_id, quantity):
-        purchase_to_update = list(filter(lambda p, p_id=product_id: p.product_id == p_id,
-                                         cart_to_update.purchases))
-        if len(purchase_to_update) > 0:
-            purchase_to_update[0].quantity = quantity
-        else:
-            cart_to_update.purchases.append(Purchase(creation_time=datetime.now(),
-                                                     cart_id=cart_to_update.cart_id,
-                                                     product_id=product_id,
-                                                     quantity=quantity))
-
 
 class CreateCartResource:
     def __init__(self, repository: Repository) -> None:
@@ -157,5 +100,19 @@ class CreateCartResource:
         self._type = Cart
 
     def on_post(self, request: Request, response: Response) -> None:
-        pass
-    # TODO
+        # TODO проверять content-type, если не json, то ошибку
+        try:
+            request_body = b''
+            while True:
+                chunk = request.stream.read(_CHUNK_SIZE_BYTES)
+                request_body += chunk
+                if not chunk:
+                    break
+
+            cart = ujson.loads(request_body)
+            self._repository.save_or_update(None)  # TODO
+
+        except (RuntimeError, ValueError, IntegrityError):
+            raise HTTPBadRequest()
+        except:
+            raise HTTPInternalServerError()
