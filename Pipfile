@@ -9,9 +9,9 @@ name = "pypi"
 falcon = "*"
 ujson = "*"
 cython = "*"
-gunicorn = "*"
 sqlalchemy = "*"
 "psycopg2-binary" = "*"
+uwsgi = "*"
 
 [requires]
 python_version = "3.7"
