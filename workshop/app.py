@@ -27,4 +27,3 @@ application.add_route('/api/product/{product_id:int}', _product_resource)
 application.add_route('/api/cart', _create_cart_resource)
 application.add_route('/api/cart/list', _cart_list_resource)
 application.add_route('/api/cart/{cart_id:int}', _get_update_cart_resource)
-# TODO Добавить DELETE для cart.purchase

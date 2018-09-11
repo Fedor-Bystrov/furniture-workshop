@@ -62,6 +62,8 @@ def update_cart(cart: Cart, request_body: dict) -> None:
     purchases = request_body.get('purchases')
     if purchases:
         update_purchases(cart, purchases)
+    else:
+        cart.purchases = None
 
     price = request_body.get('price')
     if price:
