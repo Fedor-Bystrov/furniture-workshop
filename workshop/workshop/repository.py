@@ -30,8 +30,6 @@ class Repository:
 
 def init_repository(usr, passwd, host, port, dbname) -> Repository:
     engine = create_engine('postgres://{usr}:{password}@{host}:{port}/{dbname}'.format(
-        usr=usr, password=passwd, host=host, port=port, dbname=dbname), connect_args={'sslmode': 'require'})
+        usr=usr, password=passwd, host=host, port=port, dbname=dbname))
 
-    session = sessionmaker(engine)()
-    session.execute("SET search_path TO workshop")
-    return Repository(session)
+    return Repository(sessionmaker(engine)())

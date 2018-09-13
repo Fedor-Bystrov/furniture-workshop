@@ -1,12 +1,11 @@
 version: '3'
 services:
   postgres:
-    image: "postgres:10.5"
-    environment:
-      POSTGRES_USER: workshop
-      POSTGRES_PASSWORD: 123
-  api:
-    build: .
+    build: postgres
+    ports:
+      - "5432:5432"
+  workshop:
+    build: workshop
     ports:
     - "3130:3130"
     depends_on:
