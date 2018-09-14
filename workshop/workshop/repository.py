@@ -29,6 +29,9 @@ class Repository:
 
 
 def init_repository(usr, passwd, host, port, dbname) -> Repository:
+    if not usr or not passwd or not host or not port or not dbname:
+        raise RuntimeError('Error, cannot init db, at least one of parameters is empty')
+
     engine = create_engine('postgres://{usr}:{password}@{host}:{port}/{dbname}'.format(
         usr=usr, password=passwd, host=host, port=port, dbname=dbname))
 
