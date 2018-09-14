@@ -92,7 +92,6 @@ def update_purchases(cart: Cart, data: dict) -> None:
                                                product_id=product_id,
                                                quantity=quantity))
         else:
-            # TODO причесать эксепшн
             raise RuntimeError("product or price is absent")
 
 

@@ -1,22 +1,17 @@
 import ujson
 
-from falcon import Request, Response, status_codes, HTTPBadRequest, HTTPInternalServerError
-from sqlalchemy.exc import IntegrityError
-
 from workshop.model import Cart
 from workshop.repository import Repository
 from workshop.services import cart_service
 
-_CHUNK_SIZE_BYTES = 4096
 
-
-class CartListResource:
+class CartResource:
 
     def __init__(self, repository: Repository) -> None:
         self._repository = repository
         self._type = Cart
 
-    def on_get(self, request: Request, response: Response) -> None:
+    def get_cart_list(self) -> str:
         carts = self._repository.get_all(self._type)
         cart_list = list()
         for cart in carts:
@@ -29,108 +24,53 @@ class CartListResource:
                 'shippingAddress': cart.shipping_address,
             })
 
-        response.body = ujson.dumps(cart_list)
-        response.status = status_codes.HTTP_OK
+        return ujson.dumps(cart_list)
 
+    def get_cart(self, cart_id: int) -> str:
+        cart = self._repository.get(self._type, cart_id)
+        if not cart:
+            raise RuntimeError('Cart with id = {} not found!'.format(cart_id))
 
-class GetUpdateCartResource:
+        return ujson.dumps({
+            'cartId': cart.cart_id,
+            'creationTime': cart.creation_time.isoformat(),
+            'customer': {
+                'customerId': cart.customer_id,
+                'creationTime': cart.customer.creation_time.isoformat(),
+                'firstName': cart.customer.first_name,
+                'lastName': cart.customer.last_name,
+                'middleName': cart.customer.middle_name,
+                'locale': cart.customer.locale.value,
+                'email': cart.customer.email,
+                'phone': cart.customer.phone,
+            },
+            'price': str(cart.price),
+            'purchases': [{'productId': p.product_id, 'quantity': p.quantity} for p in cart.purchases],
+            'description': cart.description,
+            'shippingAddress': cart.shipping_address,
+        })
 
-    def __init__(self, repository: Repository) -> None:
-        self._repository = repository
-        self._type = Cart
+    def update_cart(self, cart_id: int, request_data: dict) -> None:
+        cart_to_update = self._repository.get(self._type, cart_id)
+        if not cart_to_update:
+            raise RuntimeError('Cart with id = {} not found!'.format(cart_id))
 
-    def on_get(self, request: Request, response: Response, cart_id: int) -> None:
-        try:
-            cart = self._repository.get(self._type, cart_id)
-            if not cart:
-                # TODO тут кидать более специфичный exception
-                raise RuntimeError('Cart with id = {} not found!'.format(cart_id))
+        cart_service.update_cart(cart_to_update, request_data)
+        self._repository.save_or_update(cart_to_update)
 
-            response.body = ujson.dumps({
-                'cartId': cart.cart_id,
-                'creationTime': cart.creation_time.isoformat(),
-                'customer': {
-                    'customerId': cart.customer_id,
-                    'creationTime': cart.customer.creation_time.isoformat(),
-                    'firstName': cart.customer.first_name,
-                    'lastName': cart.customer.last_name,
-                    'middleName': cart.customer.middle_name,
-                    'locale': cart.customer.locale.value,
-                    'email': cart.customer.email,
-                    'phone': cart.customer.phone,
-                },
-                'price': str(cart.price),
-                'purchases': [{'productId': p.product_id, 'quantity': p.quantity} for p in cart.purchases],
-                'description': cart.description,
-                'shippingAddress': cart.shipping_address,
-            })
-            response.status = status_codes.HTTP_OK
+    def create_cart(self, request_data: dict) -> None:
+        self.validate(request_data)
 
-        except RuntimeError:
-            raise HTTPBadRequest()
-
-    def on_put(self, request: Request, response: Response, cart_id: int) -> None:
-        # TODO проверять content-type, если не json, то ошибку
-        try:
-            cart_to_update = self._repository.get(self._type, cart_id)
-            if not cart_to_update:
-                # TODO тут кидать более специфичный exception
-                raise RuntimeError('Cart with id = {} not found!'.format(cart_id))
-
-            request_body = b''
-            while True:
-                chunk = request.stream.read(_CHUNK_SIZE_BYTES)
-                request_body += chunk
-                if not chunk:
-                    break
-
-            cart_service.update_cart(cart_to_update, ujson.loads(request_body))
-            self._repository.save_or_update(cart_to_update)
-            response.status = status_codes.HTTP_OK
-
-        except RuntimeError as err:
-            raise HTTPBadRequest(str(err))
-        except (ValueError, IntegrityError):
-            raise HTTPBadRequest()
-        except:
-            raise HTTPInternalServerError()
-
-
-class CreateCartResource:
-    def __init__(self, repository: Repository) -> None:
-        self._repository = repository
-        self._type = Cart
-
-    def on_post(self, request: Request, response: Response) -> None:
-        # TODO проверять content-type, если не json, то ошибку
-        try:
-            request_body = b''
-            while True:
-                chunk = request.stream.read(_CHUNK_SIZE_BYTES)
-                request_body += chunk
-                if not chunk:
-                    break
-
-            cart_data = ujson.loads(request_body)
-            self.validate(cart_data)
-
-            cart = cart_service.create_cart(cart_data)
-            self._repository.save_or_update(cart)
-            response.body = ujson.dumps({'cartId': cart.cart_id})
-            response.status = status_codes.HTTP_CREATED
-
-            # TODO добавить логирование ошибок
-        except RuntimeError as err:
-            raise HTTPBadRequest(str(err))
-        except (ValueError, IntegrityError):
-            raise HTTPBadRequest()
-        except:
-            raise HTTPInternalServerError()
+        cart = cart_service.create_cart(request_data)
+        self._repository.save_or_update(cart)
+        return ujson.dumps({'cartId': cart.cart_id})
 
     @staticmethod
     def validate(request_body: dict):
-        required_fields = ['firstName', 'lastName', 'middleName', 'email', 'phone', 'shippingAddress', 'purchases',
-                           'price', 'description']
+        required_fields = [
+            'firstName', 'lastName', 'middleName', 'email', 'phone',
+            'shippingAddress', 'purchases', 'price', 'description'
+        ]
 
         keys = request_body.keys()
         for field in required_fields:

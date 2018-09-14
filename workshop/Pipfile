@@ -4,13 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
+python-dotenv = "*"
 
 [packages]
-falcon = "*"
 ujson = "*"
 cython = "*"
 sqlalchemy = "*"
 "psycopg2-binary" = "*"
 uwsgi = "*"
+flask = "*"
 
 [requires]
+python_version = "3.7"
