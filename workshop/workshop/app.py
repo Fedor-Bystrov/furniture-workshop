@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, Request, Response, abort
+from flask import Flask, Response, abort, request
 from sqlalchemy.exc import IntegrityError
 
 from workshop.repository import init_repository
@@ -48,14 +48,16 @@ def get_cart(cart_id):
     return Response(cart_resource.get_cart(cart_id), mimetype=application_json)
 
 
+# TODO криво работает, не удаляет purchases
 @app.route('/api/cart/<int:cart_id>', methods=['PUT'])
 def update_cart(cart_id):
     try:
-        request_body = Request.json
+        request_body = request.get_json(silent=True)
         if not request_body:
             raise RuntimeError("Request body is empty!")
 
-        return Response(cart_resource.update_cart(cart_id, request_body), mimetype=application_json)
+        cart_resource.update_cart(cart_id, request_body)
+        return '', 204
 
     except (RuntimeError, ValueError):
         abort(400)
@@ -64,11 +66,12 @@ def update_cart(cart_id):
 @app.route('/api/cart', methods=['POST'])
 def create_cart():
     try:
-        request_body = Request.json
+        request_body = request.get_json(silent=True)
         if not request_body:
             raise RuntimeError("Request body is empty!")
 
-        return Response(cart_resource.create_cart(request_body), mimetype=application_json, status=201)
+        cart_id = cart_resource.create_cart(request_body)
+        return '', 201, {'Location': '/api/cart/{}'.format(cart_id)}
 
     except (RuntimeError, ValueError, IntegrityError):
         abort(400)

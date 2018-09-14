@@ -58,15 +58,14 @@ class CartResource:
         cart_service.update_cart(cart_to_update, request_data)
         self._repository.save_or_update(cart_to_update)
 
-    def create_cart(self, request_data: dict) -> None:
+    def create_cart(self, request_data: dict) -> int:
         self.validate(request_data)
-
         cart = cart_service.create_cart(request_data)
         self._repository.save_or_update(cart)
-        return ujson.dumps({'cartId': cart.cart_id})
+        return cart.cart_id
 
     @staticmethod
-    def validate(request_body: dict):
+    def validate(request_body: dict) -> None:
         required_fields = [
             'firstName', 'lastName', 'middleName', 'email', 'phone',
             'shippingAddress', 'purchases', 'price', 'description'
