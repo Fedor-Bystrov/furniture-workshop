@@ -7,6 +7,6 @@ services:
   workshop:
     build: workshop
     ports:
-    - "3130:3130"
+      - "3130:3130"
     depends_on:
       - postgres
