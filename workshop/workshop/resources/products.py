@@ -17,9 +17,7 @@ class ProductResource:
             product_list.append({
                 'productId': product.product_id,
                 'name': product.name,
-                'creationTime': product.creation_time.isoformat(),
                 'categoryId': product.category_id,
-                'price': str(product.price),
                 'description': product.short_description
             })
 
