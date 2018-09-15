@@ -63,8 +63,8 @@ class Product(_Base):
 class Purchase(_Base):
     __tablename__ = 'purchase'
 
+    purchase_id: int = Column(Integer, primary_key=True)
     creation_time: datetime = Column(DateTime, nullable=False, default=datetime.now())
-    cart_id: int = Column(Integer, ForeignKey('cart.cart_id'), primary_key=True)
-    product_id: int = Column(Integer, ForeignKey('product.product_id'), primary_key=True)
-    product = relationship('Product')
+    cart_id: int = Column(Integer, ForeignKey('cart.cart_id'))
+    product_id: int = Column(Integer, ForeignKey('product.product_id'))
     quantity: int = Column(Integer, nullable=False)

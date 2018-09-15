@@ -63,7 +63,7 @@ def update_cart(cart: Cart, request_body: dict) -> None:
     if purchases:
         update_purchases(cart, purchases)
     else:
-        cart.purchases = None
+        cart.purchases = list()
 
     price = request_body.get('price')
     if price:
@@ -75,26 +75,16 @@ def update_cart(cart: Cart, request_body: dict) -> None:
 
 
 def update_purchases(cart: Cart, data: dict) -> None:
+    new_purchases = list()
     for purchase in data:
-
         product_id = purchase.get('productId')
         quantity = purchase.get('quantity')
 
         if product_id and quantity:
-
-            purchase_to_update = get_purchase_with_product_id(cart, product_id)
-
-            if purchase_to_update:
-                purchase_to_update.quantity = quantity
-            else:
-                cart.purchases.append(Purchase(creation_time=datetime.now(),
-                                               cart_id=cart.cart_id,
-                                               product_id=product_id,
-                                               quantity=quantity))
+            purchase = Purchase(creation_time=datetime.now(), cart_id=cart.cart_id,
+                                product_id=product_id, quantity=quantity)
+            new_purchases.append(purchase)
         else:
             raise RuntimeError("product or price is absent")
 
-
-def get_purchase_with_product_id(cart: Cart, product_id: int) -> Purchase:
-    purchases = list(filter(lambda p, p_id=product_id: p.product_id == p_id, cart.purchases))
-    return purchases[0] if len(purchases) > 0 else None
+    cart.purchases = new_purchases

@@ -48,7 +48,6 @@ def get_cart(cart_id):
     return Response(cart_resource.get_cart(cart_id), mimetype=application_json)
 
 
-# TODO криво работает, не удаляет purchases
 @app.route('/api/cart/<int:cart_id>', methods=['PUT'])
 def update_cart(cart_id):
     try:
