@@ -11,21 +11,6 @@ class CartResource:
         self._repository = repository
         self._type = Cart
 
-    def get_cart_list(self) -> str:
-        carts = self._repository.get_all(self._type)
-        cart_list = list()
-        for cart in carts:
-            cart_list.append({
-                'cartId': cart.cart_id,
-                'creationTime': cart.creation_time.isoformat(),
-                'customerId': cart.customer_id,
-                'price': str(cart.price),
-                'description': cart.description,
-                'shippingAddress': cart.shipping_address,
-            })
-
-        return ujson.dumps(cart_list)
-
     def get_cart(self, cart_id: int) -> str:
         cart = self._repository.get(self._type, cart_id)
         if not cart:

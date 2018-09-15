@@ -38,11 +38,6 @@ def get_product(product_id):
     return Response(product_resource.get_product(product_id), mimetype=application_json)
 
 
-@app.route('/api/cart/list', methods=['GET'])
-def get_cart_list():
-    return Response(cart_resource.get_cart_list(), mimetype=application_json)
-
-
 @app.route('/api/cart/<int:cart_id>', methods=['GET'])
 def get_cart(cart_id):
     return Response(cart_resource.get_cart(cart_id), mimetype=application_json)
