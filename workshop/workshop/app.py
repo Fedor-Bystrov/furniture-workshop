@@ -69,8 +69,10 @@ def create_cart():
     try:
         request_body = request.get_json(silent=True)
         if not request_body:
+            print('empty body')
             raise RuntimeError("Request body is empty!")
 
+        print(request_body)
         cart_id = cart_resource.create_cart(request_body)
         return '', 201, {'Location': '/api/cart/{}'.format(cart_id)}
 
