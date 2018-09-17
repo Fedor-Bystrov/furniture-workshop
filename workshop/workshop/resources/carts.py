@@ -35,6 +35,20 @@ class CartResource:
             'shippingAddress': cart.shipping_address,
         })
 
+    def get_cart_list(self) -> str:
+        carts = self._repository.get_all(self._type)
+        cart_list = list()
+        for cart in carts:
+            cart_list.append({
+                'cartId': cart.cart_id,
+                'creationTime': cart.creation_time.isoformat(),
+                'customerId': cart.customer_id,
+                'price': str(cart.price),
+                'description': cart.description,
+                'shippingAddress': cart.shipping_address,
+            })
+        return ujson.dumps(cart_list)
+
     def update_cart(self, cart_id: int, request_data: dict) -> None:
         cart_to_update = self._repository.get(self._type, cart_id)
         if not cart_to_update:
