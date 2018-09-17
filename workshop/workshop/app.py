@@ -85,4 +85,5 @@ def after_request(response: Response):
     header = response.headers
     header['Access-Control-Allow-Origin'] = '*'
     header['Access-Control-Allow-Headers'] = 'Content-Type'
+    header['Access-Control-Expose-Headers'] = 'Location'
     return response
