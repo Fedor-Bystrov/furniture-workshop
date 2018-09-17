@@ -53,8 +53,10 @@ def update_cart(cart_id):
     try:
         request_body = request.get_json(silent=True)
         if not request_body:
+            print('empty body')
             raise RuntimeError("Request body is empty!")
 
+        print(request_body)
         cart_resource.update_cart(cart_id, request_body)
         return '', 204
 
