@@ -74,7 +74,7 @@ def create_cart():
 
         print(request_body)
         cart_id = cart_resource.create_cart(request_body)
-        return '', 201, {'Location': '/api/cart/{}'.format(cart_id)}
+        return '', 201, {'location': '/api/cart/{}'.format(cart_id)}
 
     except (RuntimeError, ValueError, IntegrityError):
         abort(400)
@@ -84,6 +84,6 @@ def create_cart():
 def after_request(response: Response):
     header = response.headers
     header['Access-Control-Allow-Origin'] = '*'
-    header['Access-Control-Allow-Headers'] = 'Content-Type'
-    header['Access-Control-Expose-Headers'] = 'Location'
+    header['Access-Control-Allow-Headers'] = 'content-type'
+    header['Access-Control-Expose-Headers'] = 'location'
     return response
