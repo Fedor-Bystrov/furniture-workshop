@@ -36,7 +36,10 @@ def get_product_list():
 
 @app.route('/api/product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
-    return Response(product_resource.get_product(product_id), mimetype=application_json)
+    try:
+        return Response(product_resource.get_product(product_id), mimetype=application_json)
+    except RuntimeError:
+        abort(400)
 
 
 @app.route('/api/cart/list', methods=['GET'])

@@ -1,4 +1,5 @@
 import ujson
+from logging import Logger
 
 from workshop.model import Product
 from workshop.repository import Repository
@@ -6,12 +7,17 @@ from workshop.repository import Repository
 
 class ProductResource:
 
-    def __init__(self, repository: Repository) -> None:
+    def __init__(self, repository: Repository, logger: Logger) -> None:
         self._repository = repository
+        self.logger = logger
         self._type = Product
 
     def get_product_list(self) -> str:
         products = self._repository.get_all(self._type)
+        if not products:
+            self.logger.debug("[products.get_product_list]: error, cannot fetch products database")
+            raise RuntimeError("Error, database returned zero products")
+
         product_list = list()
         for product in products:
             product_list.append({
@@ -26,8 +32,8 @@ class ProductResource:
     def get_product(self, product_id: int) -> str:
         product = self._repository.get(self._type, product_id)
         if not product:
-            # TODO тут кидать более специфичный exception
-            raise RuntimeError('Product with id = {} not found!'.format(product_id))
+            self.logger.info("[products.get_product]: Product with id = {} not found!".format(product_id))
+            raise RuntimeError('Invalid product_id')
 
         return ujson.dumps({
             'productId': product.product_id,
