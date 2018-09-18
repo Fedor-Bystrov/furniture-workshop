@@ -15,7 +15,7 @@ class ProductResource:
     def get_product_list(self) -> str:
         products = self._repository.get_all(self._type)
         if not products:
-            self.logger.debug("[products.get_product_list]: error, cannot fetch products database")
+            self.logger.debug("[products.get_product_list]: error, cannot fetch products from database")
             raise RuntimeError("Error, database returned zero products")
 
         product_list = list()
@@ -32,8 +32,7 @@ class ProductResource:
     def get_product(self, product_id: int) -> str:
         product = self._repository.get(self._type, product_id)
         if not product:
-            self.logger.info("[products.get_product]: Product with id = {} not found!".format(product_id))
-            raise RuntimeError('Invalid product_id')
+            raise RuntimeError('Product with id = {} not found!'.format(product_id))
 
         return ujson.dumps({
             'productId': product.product_id,

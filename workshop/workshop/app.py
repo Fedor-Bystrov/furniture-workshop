@@ -38,7 +38,8 @@ def get_product_list():
 def get_product(product_id):
     try:
         return Response(product_resource.get_product(product_id), mimetype=application_json)
-    except RuntimeError:
+    except RuntimeError as e:
+        _logger.debug('[Error, get_product]: {}'.format(str(e)))
         abort(400)
 
 
@@ -49,7 +50,11 @@ def get_cart_list():
 
 @app.route('/api/cart/<int:cart_id>', methods=['GET'])
 def get_cart(cart_id):
-    return Response(cart_resource.get_cart(cart_id), mimetype=application_json)
+    try:
+        return Response(cart_resource.get_cart(cart_id), mimetype=application_json)
+    except RuntimeError as e:
+        _logger.debug('[Error, get_cart]: {}'.format(str(e)))
+        abort(400)
 
 
 @app.route('/api/cart/<int:cart_id>', methods=['PUT'])
@@ -57,14 +62,14 @@ def update_cart(cart_id):
     try:
         request_body = request.get_json(silent=True)
         if not request_body:
-            print('empty body')
             raise RuntimeError("Request body is empty!")
 
-        print(request_body)
+        _logger.info('[update_cart]: request_body: {}'.format(request_body))
         cart_resource.update_cart(cart_id, request_body)
         return '', 204
 
-    except (RuntimeError, ValueError):
+    except (RuntimeError, ValueError) as e:
+        _logger.debug('[Error, update_cart]: {}'.format(str(e)))
         abort(400)
 
 
@@ -73,14 +78,14 @@ def create_cart():
     try:
         request_body = request.get_json(silent=True)
         if not request_body:
-            print('empty body')
             raise RuntimeError("Request body is empty!")
 
-        print(request_body)
+        _logger.info('[create_cart]: request_body: {}'.format(request_body))
         cart_id = cart_resource.create_cart(request_body)
         return '', 201, {'Location': '/api/cart/{}'.format(cart_id)}
 
-    except (RuntimeError, ValueError, IntegrityError):
+    except (RuntimeError, ValueError, IntegrityError) as e:
+        _logger.debug('[Error, create_cart]: {}'.format(str(e)))
         abort(400)
 
 
