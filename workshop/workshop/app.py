@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask, Response, abort, request
@@ -10,7 +11,10 @@ application_json = 'application/json'
 
 app = Flask(__name__)
 
-_logger = app.logger
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)s [%(levelname)s] %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S')
+_logger = logging.getLogger(__name__)
 _repository = init_repository(
     os.getenv('DB_USR'),
     os.getenv('DB_PASS'),
@@ -19,9 +23,9 @@ _repository = init_repository(
     os.getenv('DB_NAME'),
 )
 
-category_resource = categories.CategoryResource(_repository, _logger)
-product_resource = products.ProductResource(_repository, _logger)
-cart_resource = carts.CartResource(_repository, _logger)
+category_resource = categories.CategoryResource(_repository, _logger.getChild('category_resource'))
+product_resource = products.ProductResource(_repository, _logger.getChild('product_resource'))
+cart_resource = carts.CartResource(_repository, _logger.getChild('cart_resource'))
 
 
 @app.route('/api/category/list', methods=['GET'])
