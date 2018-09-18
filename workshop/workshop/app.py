@@ -8,7 +8,10 @@ from workshop.resources import categories, products, carts
 
 application_json = 'application/json'
 
-repository = init_repository(
+app = Flask(__name__)
+
+_logger = app.logger
+_repository = init_repository(
     os.getenv('DB_USR'),
     os.getenv('DB_PASS'),
     os.getenv('DB_HOST'),
@@ -16,11 +19,9 @@ repository = init_repository(
     os.getenv('DB_NAME'),
 )
 
-app = Flask(__name__)
-
-category_resource = categories.CategoryResource(repository)
-product_resource = products.ProductResource(repository)
-cart_resource = carts.CartResource(repository)
+category_resource = categories.CategoryResource(_repository, _logger)
+product_resource = products.ProductResource(_repository, _logger)
+cart_resource = carts.CartResource(_repository, _logger)
 
 
 @app.route('/api/category/list', methods=['GET'])
@@ -74,7 +75,7 @@ def create_cart():
 
         print(request_body)
         cart_id = cart_resource.create_cart(request_body)
-        return '', 201, {'location': '/api/cart/{}'.format(cart_id)}
+        return '', 201, {'Location': '/api/cart/{}'.format(cart_id)}
 
     except (RuntimeError, ValueError, IntegrityError):
         abort(400)
@@ -82,8 +83,9 @@ def create_cart():
 
 @app.after_request
 def after_request(response: Response):
-    header = response.headers
-    header['Access-Control-Allow-Origin'] = '*'
-    header['Access-Control-Allow-Headers'] = 'content-type'
-    header['Access-Control-Expose-Headers'] = 'location'
+    headers = response.headers
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+    headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    headers['Access-Control-Expose-Headers'] = 'Location'
     return response
