@@ -54,18 +54,18 @@ CREATE TABLE purchase (
   quantity         INT NOT NULL CHECK (quantity >= 0) DEFAULT 1
 );
 
-INSERT INTO category (name) VALUES ('Мягкая мебель'),('Системы хранения'), ('Офисная Мебель');
+INSERT INTO category (name) VALUES ('Simpsons'),('Adventure time'), ('Rick&Morty');
 
 INSERT INTO product (name, category_id, price, short_description, description) VALUES
-  ('Кровать', '1', 11.1, 'short_description_1', 'description_1'),
-  ('Диван', '1', 11.2, 'short_description_1', 'description_1'),
-  ('Кресло', '1', 11.3, 'short_description_1', 'description_1'),
-  ('Шкаф', '2', 12.1, 'short_description_1', 'description_1'),
-  ('Тумба', '2', 12.2, 'short_description_1', 'description_1'),
-  ('Полки', '2', 12.3, 'short_description_1', 'description_1'),
-  ('Стол', '3', 13.1, 'short_description_1', 'description_1'),
-  ('Стул', '3', 13.2, 'short_description_1', 'description_1'),
-  ('Кресло-качалка', '3', 13.3, 'short_description_1', 'description_1');
+  ('Beer', '1', 11.1, 'Beer... Now there\'s a temporary solution', 'What can be more awesome, than a bottle-two of cold beer after busy day?Just take some Duff\'s beer and be happy!'),
+  ('Krusty Burger', '1', 11.2, 'Original Krusty Burger\'s poster', 'Just take this big yummy burger! Or two! Eat \'em and stop worrying about everything!'),
+  ('Donut', '1', 11.3, 'Would you like some fresh yummy donuts?', 'Just imagine that:  softly crispy doughnut on the outside with a sweet chocolate iceing spread out evenly over the top, nice soft dough but not undercooked on the inside with some sweet creamy custard filling on the inside as well, not too gooey thatd be gross but not too thin cuz it would fall out when you bit into the doughnut.'),
+  ('Jake', '2', 12.1, 'One of the most famous Jake\'s quotes', 'Dude, sukin\' at something is the first step to being sorta good at something'),
+  ('BMO', '2', 12.2, 'Who wants to play video games?', 'Let\'s help little BMO to find someone?''),
+  ('Ice king', '2', 12.3, 'I just want to be loved', '"I just want to be loved" - as we all'),
+  ('Morty', '3', 13.1, 'You\'re both pieces of shit! I can prove it mathematically', 'Wubba lubba dub dub!'),
+  ('Angry Rick', '3', 13.2, 'Get your shit together!', 'Just... Nothing to add ^_^'),
+  ('Contemtuous Morty', '3', 13.3, 'I\'m sorry, but your opinion means very little to me', 'So just shut up.');
 
 INSERT INTO customer (first_name, last_name, middle_name, locale, email, phone) VALUES
   ('test_customer_first_name_1', 'test_customer_last_name_1', '', 'RU', 'test@test.ru', '111111'),
