@@ -1,4 +1,4 @@
-# Furniture Workshop 
+# workshop-api 
 
 This project is aimed to provide a simple backend for **TODO**
 
