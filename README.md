@@ -1,5 +1,3 @@
-# workshop-api 
-
 ## Create and run application
 
 In order to run application, *docker* and *docker-compose* have to be installed
