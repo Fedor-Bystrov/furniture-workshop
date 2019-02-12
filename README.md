@@ -1,7 +1,5 @@
 # workshop-api 
 
-This project is aimed to provide a simple backend for **TODO**
-
 ## Create and run application
 
 In order to run application, *docker* and *docker-compose* have to be installed
